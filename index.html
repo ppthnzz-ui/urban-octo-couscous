@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+<title>会说话的中文卡</title>
+
+<script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#fff1f7;
+  overflow:hidden;
+}
+
+.top{
+  position:fixed;
+  top:15px;
+  left:15px;
+  right:15px;
+  z-index:10;
+  background:white;
+  border-radius:20px;
+  padding:15px;
+  text-align:center;
+  box-shadow:0 4px 20px rgba(0,0,0,.18);
+}
+
+.title{
+  font-size:25px;
+  font-weight:bold;
+  color:#ff5f91;
+}
+
+.subtitle{
+  margin-top:4px;
+  color:#777;
+}
+
+.box{
+  position:fixed;
+  left:15px;
+  right:15px;
+  bottom:15px;
+  z-index:10;
+  background:white;
+  border-radius:22px;
+  padding:18px;
+  text-align:center;
+  box-shadow:0 4px 20px rgba(0,0,0,.2);
+}
+
+.chinese{
+  font-size:25px;
+  font-weight:bold;
+}
+
+.pinyin{
+  color:#777;
+  margin:6px;
+}
+
+button{
+  border:none;
+  border-radius:14px;
+  padding:12px 18px;
+  margin:5px;
+  font-size:16px;
+  background:#ff6f9d;
+  color:white;
+}
+
+button:active{
+  transform:scale(.95);
+}
+
+.mission{
+  margin-top:8px;
+  padding:10px;
+  background:#fff3a8;
+  border-radius:12px;
+}
+
+#characterName{
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="top">
+  <div class="title">🪄 会说话的中文卡</div>
+  <div class="subtitle">AI + AR ตัวละครจีนมีชีวิต</div>
+</div>
+
+<div class="box">
+
+  <div id="characterName">
+    👩🏻‍🏫 老师 Lǎoshī
+  </div>
+
+  <div class="chinese" id="sentence">
+    你好！很高兴认识你。
+  </div>
+
+  <div class="pinyin" id="pinyin">
+    Nǐ hǎo! Hěn gāoxìng rènshi nǐ.
+  </div>
+
+  <button onclick="speakChinese()">
+    🔊 ฟังภาษาจีน
+  </button>
+
+  <button onclick="showMission()">
+    ⭐ ภารกิจ
+  </button>
+
+  <button onclick="changeCharacter()">
+    🔄 เปลี่ยนตัวละคร
+  </button>
+
+  <div class="mission" id="mission">
+    ภารกิจ: แนะนำตัวเองเป็นภาษาจีน
+  </div>
+
+</div>
+
+<a-scene
+  embedded
+  vr-mode-ui="enabled:false"
+  renderer="colorManagement:true"
+  background="color:#fff1f7">
+
+  <a-camera
+    position="0 1.6 0"
+    look-controls="enabled:true">
+  </a-camera>
+
+  <!-- ตัวละคร -->
+
+  <a-entity
+    id="character"
+    position="0 0.2 -3">
+
+    <!-- ตัว -->
+    <a-cylinder
+      id="body"
+      radius="0.55"
+      height="1.5"
+      color="#ff91b5"
+      animation="
+        property:position;
+        dir:alternate;
+        dur:1200;
+        loop:true;
+        to:0 0.35 -3">
+    </a-cylinder>
+
+    <!-- หัว -->
+    <a-sphere
+      position="0 1.15 -3"
+      radius="0.45"
+      color="#ffd6bd">
+    </a-sphere>
+
+    <!-- ตาซ้าย -->
+    <a-sphere
+      position="-0.16 1.22 -3.4"
+      radius="0.05"
+      color="#222">
+    </a-sphere>
+
+    <!-- ตาขวา -->
+    <a-sphere
+      position="0.16 1.22 -3.4"
+      radius="0.05"
+      color="#222">
+    </a-sphere>
+
+    <!-- ปาก -->
+    <a-torus
+      position="0 1.03 -3.4"
+      rotation="90 0 0"
+      radius="0.09"
+      radius-tubular="0.025"
+      color="#d85a78">
+    </a-torus>
+
+    <!-- ป้ายชื่อ -->
+    <a-text
+      id="characterText"
+      value="老师"
+      align="center"
+      position="0 1.8 -3"
+      scale="1.5 1.5 1.5"
+      color="#333">
+    </a-text>
+
+  </a-entity>
+
+</a-scene>
+
+<script>
+
+const characters = [
+
+{
+name:"👩🏻‍🏫 老师 Lǎoshī",
+chinese:"你好！很高兴认识你。",
+pinyin:"Nǐ hǎo! Hěn gāoxìng rènshi nǐ.",
+mission:"ภารกิจ: แนะนำตัวเองเป็นภาษาจีน",
+color:"#ff91b5",
+label:"老师"
+},
+
+{
+name:"👨🏻‍🎓 学生 Xuéshēng",
+chinese:"你今年几岁？",
+pinyin:"Nǐ jīnnián jǐ suì?",
+mission:"ภารกิจ: ตอบว่าคุณอายุเท่าไร",
+color:"#79b9e8",
+label:"学生"
+},
+
+{
+name:"👧🏻 朋友 Péngyǒu",
+chinese:"你喜欢什么？",
+pinyin:"Nǐ xǐhuān shénme?",
+mission:"ภารกิจ: บอกสิ่งที่คุณชอบ",
+color:"#91d27d",
+label:"朋友"
+},
+
+{
+name:"👨🏻‍⚕️ 医生 Yīshēng",
+chinese:"你哪里不舒服？",
+pinyin:"Nǐ nǎlǐ bù shūfu?",
+mission:"ภารกิจ: บอกอาการของคุณ",
+color:"#a996e8",
+label:"医生"
+},
+
+{
+name:"👩🏻‍💼 售货员 Shòuhuòyuán",
+chinese:"需要帮忙吗？",
+pinyin:"Xūyào bāngmáng ma?",
+mission:"ภารกิจ: ขอความช่วยเหลือเป็นภาษาจีน",
+color:"#f2ad65",
+label:"售货员"
+}
+
+];
+
+let current = 0;
+
+
+/* อ่านภาษาจีน */
+
+function speakChinese(){
+
+  const text =
+    characters[current].chinese;
+
+  const speech =
+    new SpeechSynthesisUtterance(text);
+
+  speech.lang = "zh-CN";
+  speech.rate = 0.85;
+
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(speech);
+
+}
+
+
+/* ภารกิจ */
+
+function showMission(){
+
+  document.getElementById("mission").innerText =
+    "⭐ " +
+    characters[current].mission;
+
+}
+
+
+/* เปลี่ยนตัวละคร */
+
+function changeCharacter(){
+
+  current++;
+
+  if(current >= characters.length){
+    current = 0;
+  }
+
+  updateCharacter();
+
+}
+
+
+/* อัปเดตหน้าจอ */
+
+function updateCharacter(){
+
+  const c =
+    characters[current];
+
+  document.getElementById(
+    "characterName"
+  ).innerText = c.name;
+
+  document.getElementById(
+    "sentence"
+  ).innerText = c.chinese;
+
+  document.getElementById(
+    "pinyin"
+  ).innerText = c.pinyin;
+
+  document.getElementById(
+    "mission"
+  ).innerText = c.mission;
+
+  document.getElementById(
+    "body"
+  ).setAttribute(
+    "color",
+    c.color
+  );
+
+  document.getElementById(
+    "characterText"
+  ).setAttribute(
+    "value",
+    c.label
+  );
+
+}
+
+
+/* QR สามารถส่งตัวละครเข้ามาได้ */
+
+const params =
+  new URLSearchParams(
+    window.location.search
+  );
+
+const character =
+  params.get("c");
+
+if(character){
+
+  const index =
+    characters.findIndex(
+      x =>
+      x.label.toLowerCase()
+      === character.toLowerCase()
+    );
+
+  if(index >= 0){
+
+    current = index;
+
+    updateCharacter();
+
+  }
+
+}
+
+
+/* เปิดเสียงอัตโนมัติหลังเข้าเว็บ */
+
+setTimeout(function(){
+
+  speakChinese();
+
+},1500);
+
+</script>
+
+</body>
+</html>
